@@ -35,12 +35,6 @@ protected:
 	void CheckIfTimerEnd();
 public:
 	
-	//UPROPERTY()
-	//bool bIsBlueTeam;
-	UPROPERTY(ReplicatedUsing=OnRep_OnBlueTeamScore , BlueprintReadOnly , Category="Score")
-	int BlueTeamScore;
-	UPROPERTY(ReplicatedUsing=OnRep_OnRedTeamScore , BlueprintReadOnly , Category="Score")
-	int RedTeamScore;
 	UPROPERTY(ReplicatedUsing=OnRep_OnGameTimerUpdate , BlueprintReadOnly , Category="Timer")
 	int GameMatchTimer;
 	UPROPERTY(ReplicatedUsing=OnRep_OnGameTimerUpdate , BlueprintReadOnly , Category="Timer")
@@ -53,11 +47,7 @@ public:
 	FOnGameStartDelegate OnGameEndDelegate;
 	UFUNCTION()
 	void OnRep_OnChangeGameStateType();
-	UFUNCTION(BlueprintCallable)
-	void OnRep_OnBlueTeamScore();
-	
-	UFUNCTION(BlueprintCallable)
-	void OnRep_OnRedTeamScore();
+
 	UFUNCTION()
 	void OnRep_OnGameTimerUpdate();
 	UFUNCTION()

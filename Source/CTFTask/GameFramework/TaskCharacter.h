@@ -186,6 +186,8 @@ protected:
 	void CorrectRotationMulticast(FRotator Rotator);
 	UFUNCTION(BlueprintCallable, Category="Rotation")
 	void CorrectRotationMulticast_Implementation(FRotator Rotator);
+
+
 public:
 	UFUNCTION()
 	void PlayDeathAnimation();
@@ -217,10 +219,12 @@ public:
 	void ReSpawnMe();
 	UFUNCTION()
 	void OnGameStart();
+	UFUNCTION()
+	void ColorBlink(float DeltaSeconds);
 protected:
 	float DelayToBlink = 1;
 	float TotalBlinkTime = 4;
-	float blink = 0.0f;
+	float BlinkColor = 0.0f;
 	UPROPERTY()
 	UTaskGameInstance* TaskGameInstance;
 public:

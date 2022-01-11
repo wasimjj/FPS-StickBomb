@@ -47,16 +47,10 @@ void ACTFTaskProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 		if ((OtherActor != nullptr) && (OtherActor != this) )
 		{
 			OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
-			if(APawn* Pawn = GetInstigator())
-			{
-				//UGameplayStatics::ApplyPointDamage(OtherActor, DamageValue, NormalImpulse, Hit, Pawn->Controller, this, DamageType);
-
-			}
 			if(ACTFTaskCharacter*  Character = dynamic_cast<ACTFTaskCharacter*>(OtherActor))
 			{
 				Character->SetBombVisibility(true);
 			}
-			GLog->Log(FString::Printf(TEXT("OnHit ...")));
 			Destroy();
 		}
 	}

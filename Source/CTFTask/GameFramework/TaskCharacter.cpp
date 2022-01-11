@@ -118,37 +118,42 @@ ACTFTaskCharacter::ACTFTaskCharacter()
 	//Initialize the player's Health
 	PrimaryActorTick.bCanEverTick = true;
 }
+
+void ACTFTaskCharacter::ColorBlink(float DeltaSeconds)
+{
+	if(TaskPlayerState->bIsBombCaptured && TotalBlinkTime > 0)
+	{
+		if(TotalBlinkTime <= 0)
+		{
+			PlayDeathAnimation();
+			TaskPlayerState->bIsBombCaptured = false;
+			return;
+		}
+		DelayToBlink -= DeltaSeconds;
+		TotalBlinkTime -= DeltaSeconds;
+		if( DelayToBlink <= 0)
+		{
+			DelayToBlink = FMath::Clamp(TotalBlinkTime/4 ,0.1f,1.0f);
+			BlinkColor = BlinkColor > 0 ? 0 : 1;
+			if(!BlinkMaterial)
+			{
+				BlinkMaterial = UMaterialInstanceDynamic::Create(BombMesh->GetMaterial(0),nullptr);
+			}
+			BombMesh->SetMaterial(0,BlinkMaterial);
+			BlinkMaterial->SetScalarParameterValue("Blink",BlinkColor);
+
+		}
+	}
+}
+
 void ACTFTaskCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	if(TaskPlayerState &&  TaskPlayerState->bIsBombCaptured)
+	if(TaskPlayerState == nullptr)
 	{
-		if(TotalBlinkTime > 0  )
-		{
-
-			DelayToBlink -= DeltaSeconds;
-			TotalBlinkTime -= DeltaSeconds;
-			if( DelayToBlink <= 0)
-			{
-				DelayToBlink = FMath::Clamp(TotalBlinkTime/4 ,0.1f,1.0f);
-				blink = blink > 0 ? 0 : 1;
-				if(!BlinkMaterial)
-				{
-			
-					BlinkMaterial = UMaterialInstanceDynamic::Create(BombMesh->GetMaterial(0),nullptr);
-				}
-				BombMesh->SetMaterial(0,BlinkMaterial);
-				BlinkMaterial->SetScalarParameterValue("Blink",blink);
-				GLog->Log(FString::Printf(TEXT("Blink = %f"),blink));
-
-			}
-			return;
-		}
-		PlayDeathAnimation();
-		TaskPlayerState->bIsBombCaptured = false;
+		return ;
 	}
-	
-	
+	ColorBlink(DeltaSeconds);
 }
 void ACTFTaskCharacter::BeginPlay()
 {
@@ -176,21 +181,20 @@ void ACTFTaskCharacter::BeginPlay()
 		VR_Gun->SetHiddenInGame(true, true);
 		Mesh1P->SetHiddenInGame(false, true);
 	}
-	if(GetLocalRole() == ROLE_Authority)
-	{
-		TaskGameModeGameplay = Cast<ATaskGameModeGameplay>( UGameplayStatics::GetGameMode(GetWorld()));
-	}
 
 	AnimInstanceSelf = Mesh1P->GetAnimInstance();
 	AnimInstanceEnemy = MeshCharacterBody->GetAnimInstance();
 	TaskGameStateBase =  Cast<ATaskGameStateBase>( UGameplayStatics::GetGameState(GetWorld()));
 	if(HasAuthority())
 	{
+		TaskGameModeGameplay = Cast<ATaskGameModeGameplay>( UGameplayStatics::GetGameMode(GetWorld()));
 		TaskGameModeGameplay->OnGameStartDelegate.AddDynamic(this,&ACTFTaskCharacter::OnGameStart);// This character is also server
-	}
-	if(HasAuthority())
-	{
-		//PlayerStateSetup();
+		TaskPlayerState = Cast<ATaskPlayerState> (GetPlayerState());
+		if(TaskPlayerState)
+		{
+			TaskPlayerState->AmmoCount = TaskGameModeGameplay->AmmoCount;
+		}
+
 	}
 }
 
@@ -205,23 +209,22 @@ void ACTFTaskCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 	PlayerStateSetup();
-	GLog->Log(FString::Printf(TEXT("OnRep_PlayerState local Role :: %d"),GetLocalRole()));
+	
 }
 void ACTFTaskCharacter::PlayerStateSetup()
 {
-	 if (GetPlayerState())
-	 {
-	 	TaskPlayerState = Cast<ATaskPlayerState> (GetPlayerState());
-	 	SetPlayerState(TaskPlayerState);
-	 	GLog->Log(FString::Printf(TEXT("PlayerStateSetup local Role :: %d"),GetLocalRole()));
-	 	TaskPlayerState->OnPlayerDeathDelegate.AddDynamic(this,&ACTFTaskCharacter::OnPlayerDeath);
-	 }
-	  TaskGameInstance = Cast<UTaskGameInstance>(GetWorld()->GetGameInstance());
-	 if (IsLocallyControlled())
-	 {
-	 	PlayerStateSetupInternal(TaskGameInstance->PlayerDataStruct);
-	 	OnStateInitializeDelegate.Broadcast();
-	 }
+	if (GetPlayerState())
+	{
+		TaskPlayerState = Cast<ATaskPlayerState> (GetPlayerState());
+		SetPlayerState(TaskPlayerState);
+		TaskPlayerState->OnPlayerDeathDelegate.AddDynamic(this,&ACTFTaskCharacter::OnPlayerDeath);
+	}
+	TaskGameInstance = Cast<UTaskGameInstance>(GetWorld()->GetGameInstance());
+	if (IsLocallyControlled())
+	{
+		PlayerStateSetupInternal(TaskGameInstance->PlayerDataStruct);
+		OnStateInitializeDelegate.Broadcast();
+	}
 }
 void ACTFTaskCharacter::OnPlayerDeath()
 {
@@ -244,6 +247,7 @@ void ACTFTaskCharacter::PlayerStateSetupInternal_Implementation(FPlayerDataStruc
 {
 	if (TaskPlayerState)
 	{
+		TaskPlayerState->AmmoCount = TaskGameModeGameplay->AmmoCount;
 		TaskPlayerState->SetPlayerName(PlayerDataStruct.PlayerName);
 	}
 }
@@ -338,8 +342,12 @@ void ACTFTaskCharacter::AddControllerYawInput(float Val)
 
 void ACTFTaskCharacter::OnFire()
 {
-	if (ProjectileClass != nullptr)
+	if(TaskPlayerState->AmmoCount <= 0)
 	{
+		return;
+	}
+	if (ProjectileClass != nullptr)
+	{\
 		UWorld* const World = GetWorld();
 		if (World != nullptr)
 		{
@@ -454,6 +462,7 @@ bool ACTFTaskCharacter::EnableTouchscreenMovement(class UInputComponent* PlayerI
 
 void ACTFTaskCharacter::OnFireServer_Implementation(const FVector Location, const FRotator Rotation)
 {
+	TaskPlayerState->AmmoCount--;
 	FActorSpawnParameters ActorSpawnParams;
 	ActorSpawnParams.Instigator = GetInstigator();
 	ActorSpawnParams.SpawnCollisionHandlingOverride =

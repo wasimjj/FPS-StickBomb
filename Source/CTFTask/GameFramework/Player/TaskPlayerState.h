@@ -23,7 +23,7 @@ class CTFTASK_API ATaskPlayerState : public APlayerState
 public:
 	
 	UPROPERTY(ReplicatedUsing=OnRep_AmmoCount , BlueprintReadOnly, Category="Health")
-	float AmmoCount;
+	int AmmoCount;
 	UPROPERTY(ReplicatedUsing=OnRep_IsBombCaptured)
 	bool bIsBombCaptured;
 	UPROPERTY(ReplicatedUsing=OnRep_IsDead)

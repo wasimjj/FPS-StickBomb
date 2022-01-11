@@ -11,8 +11,7 @@
 void ATaskGameStateBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(ATaskGameStateBase, BlueTeamScore);
-	DOREPLIFETIME(ATaskGameStateBase, RedTeamScore);
+	
 	DOREPLIFETIME(ATaskGameStateBase, GameStateType);
 	DOREPLIFETIME(ATaskGameStateBase,GameMatchTimer);
 }
@@ -51,14 +50,6 @@ void ATaskGameStateBase::UpdateGameState(EGameState GameState)
 void ATaskGameStateBase::AddScore(const bool bIsBlueTeam)
 {
 	UE_LOG(LogTemp, Warning, TEXT("I am from team::%d "), bIsBlueTeam)
-	if (bIsBlueTeam)
-	{
-		BlueTeamScore++;
-	}
-	else
-	{
-		RedTeamScore++;
-	}
 }
 
 void ATaskGameStateBase::OnRep_OnChangeGameStateType()
@@ -67,10 +58,6 @@ void ATaskGameStateBase::OnRep_OnChangeGameStateType()
 	OnGameStateChange();
 }
 
-void ATaskGameStateBase::OnRep_OnRedTeamScore()
-{
-	UE_LOG(LogTemp, Warning, TEXT("OnRep_OnRedTeamScore ::%d"), RedTeamScore);
-}
 
 void ATaskGameStateBase::OnRep_OnGameTimerUpdate()
 {
@@ -96,10 +83,6 @@ void ATaskGameStateBase::OnGameStateChange()
 	}
 }
 
-void ATaskGameStateBase::OnRep_OnBlueTeamScore()
-{
-	UE_LOG(LogTemp, Warning, TEXT("OnRep_OnBlueTeamScore ::%d"), BlueTeamScore);
-}
 void ATaskGameStateBase::CheckIfTimerEnd()
 {
 	if(GameMatchTimer <= 0)
