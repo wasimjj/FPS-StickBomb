@@ -1,6 +1,8 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "TaskCharacter.h"
+
+#include "EngineUtils.h"
 #include "TaskProjectile.h"
 #include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
@@ -117,6 +119,7 @@ ACTFTaskCharacter::ACTFTaskCharacter()
 	//
 	//Initialize the player's Health
 	PrimaryActorTick.bCanEverTick = true;
+	
 }
 
 void ACTFTaskCharacter::ColorBlink(float DeltaSeconds)
@@ -149,7 +152,7 @@ void ACTFTaskCharacter::ColorBlink(float DeltaSeconds)
 void ACTFTaskCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	if(TaskPlayerState == nullptr)
+	if(GetTaskPlayerState() == nullptr)
 	{
 		return ;
 	}
@@ -189,16 +192,14 @@ void ACTFTaskCharacter::BeginPlay()
 	{
 		TaskGameModeGameplay = Cast<ATaskGameModeGameplay>( UGameplayStatics::GetGameMode(GetWorld()));
 		TaskGameModeGameplay->OnGameStartDelegate.AddDynamic(this,&ACTFTaskCharacter::OnGameStart);// This character is also server
-		TaskPlayerState = Cast<ATaskPlayerState> (GetPlayerState());
-		if(TaskPlayerState)
-		{
-			TaskPlayerState->AmmoCount = TaskGameModeGameplay->AmmoCount;
-		}
-
+		UpdateAmmo(TaskGameModeGameplay->AmmoCount);
 	}
+	
 }
 
-
+void ACTFTaskCharacter::TouchUpdate(const ETouchIndex::Type FingerIndex, const FVector Location)
+{
+}
 
 void ACTFTaskCharacter::OnGameStart()
 {
@@ -211,8 +212,18 @@ void ACTFTaskCharacter::OnRep_PlayerState()
 	PlayerStateSetup();
 	
 }
+
+void ACTFTaskCharacter::UpdateAmmo_Implementation(const int Ammo)
+{
+	if(GetTaskPlayerState())
+	{
+		GetTaskPlayerState()->AmmoCount = Ammo;
+	}
+}
+
 void ACTFTaskCharacter::PlayerStateSetup()
 {
+	
 	if (GetPlayerState())
 	{
 		TaskPlayerState = Cast<ATaskPlayerState> (GetPlayerState());
@@ -245,18 +256,15 @@ void ACTFTaskCharacter::ReSpawnMe()
 
 void ACTFTaskCharacter::PlayerStateSetupInternal_Implementation(FPlayerDataStruct PlayerDataStruct)
 {
-	if (TaskPlayerState)
-	{
-		TaskPlayerState->AmmoCount = TaskGameModeGameplay->AmmoCount;
-		TaskPlayerState->SetPlayerName(PlayerDataStruct.PlayerName);
-	}
+	GetTaskPlayerState()->AmmoCount = TaskGameModeGameplay->AmmoCount;
+	GetTaskPlayerState()->SetPlayerName(PlayerDataStruct.PlayerName);
+	UpdateAmmo(TaskGameModeGameplay->AmmoCount); // Set on client
 }
 
 
 void ACTFTaskCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-
 }
 
 
@@ -342,7 +350,8 @@ void ACTFTaskCharacter::AddControllerYawInput(float Val)
 
 void ACTFTaskCharacter::OnFire()
 {
-	if(TaskPlayerState->AmmoCount <= 0)
+	if(TaskPlayerState &&
+		TaskPlayerState->AmmoCount <= 0)
 	{
 		return;
 	}
@@ -364,7 +373,10 @@ void ACTFTaskCharacter::OnFire()
 			FVector SpawnLocation = ((FP_MuzzleLocation != nullptr)
 				                               ? FP_MuzzleLocation->GetComponentLocation()
 				                               : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
-
+			if(!HasAuthority())
+			{
+				TaskPlayerState->AmmoCount--;
+			}
 			OnFireServer(SpawnLocation, SpawnRotation);
 			
 		}
@@ -462,7 +474,8 @@ bool ACTFTaskCharacter::EnableTouchscreenMovement(class UInputComponent* PlayerI
 
 void ACTFTaskCharacter::OnFireServer_Implementation(const FVector Location, const FRotator Rotation)
 {
-	TaskPlayerState->AmmoCount--;
+	
+	GetTaskPlayerState()->AmmoCount--;
 	FActorSpawnParameters ActorSpawnParams;
 	ActorSpawnParams.Instigator = GetInstigator();
 	ActorSpawnParams.SpawnCollisionHandlingOverride =
@@ -504,11 +517,6 @@ void ACTFTaskCharacter::PlayDeathAnimation()
 
 void ACTFTaskCharacter::SetBombVisibility(const bool bVisibility)
 {
-	if(!TaskPlayerState)
-	{
-		TaskPlayerState = Cast<ATaskPlayerState> (GetPlayerState());
-	}
-	
-	TaskPlayerState->bIsBombCaptured = bVisibility;
+	GetTaskPlayerState()->bIsBombCaptured = bVisibility;
 	BombMesh->SetVisibility(bVisibility);
 }

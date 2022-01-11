@@ -10,9 +10,9 @@ void ATaskGameModeGameplay::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 	PlayersInGame++;
-	if (PlayersInGame >= MaxPlayer)
+	//if (PlayersInGame >= MaxPlayer)
 	{
-		StartGame();
+		//StartGame();
 	}
 }
 
@@ -38,7 +38,7 @@ void ATaskGameModeGameplay::SpawnPickable(TSubclassOf<APickable> Pickable, FVect
 {
 	if(Pickable)
 	{
-		APickable* Item = GetWorld()->SpawnActor<APickable>(Pickable, SpawnLocation,
+		GetWorld()->SpawnActor<APickable>(Pickable, SpawnLocation,
 															  FRotator::ZeroRotator);
 	}
 }

@@ -20,7 +20,7 @@ class CTFTASK_API ATaskGameModeGameplay : public ATaskGameMode
 public:
 	ATaskGameModeGameplay();
 	virtual void BeginPlay() override;
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void StartGame();
 	UFUNCTION()
 	void SpawnPickable(TSubclassOf<APickable> Pickable, FVector SpawnLocation);
@@ -35,8 +35,6 @@ public:
 	FOnFlagCapturedDelegate OnBombCapturedDelegate;
 	UPROPERTY(BlueprintAssignable , Category="Game Start")
 	FNotifyDelegate OnGameStartDelegate;
-
-	TArray<class APickable*> Pickables;
 
 	UPROPERTY(BlueprintReadOnly , Category="Players")
 	int PlayersInGame;

@@ -25,6 +25,7 @@ void ATaskPlayerState::BeginPlay()
 
 void ATaskPlayerState::OnRep_AmmoCount()
 {
+	GLog->Log(FString::Printf(TEXT("OnRep_AmmoCount Ammo ::: %d"),AmmoCount));
 }
 
 void ATaskPlayerState::OnRep_IsBombCaptured()

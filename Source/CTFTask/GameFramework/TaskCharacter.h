@@ -66,6 +66,7 @@ public:
 
 protected:
 	virtual void BeginPlay();
+
 	virtual void Tick(float DeltaSeconds) override;
 	//void OnStartGame();
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
@@ -209,6 +210,8 @@ public:
 	void SetBombVisibility(const bool bVisibility);
 	UFUNCTION(Server, Reliable)
 	void PlayerStateSetupInternal(FPlayerDataStruct PlayerDataStruct);
+	UFUNCTION(Client, Reliable)
+	void UpdateAmmo(const int Ammo );
 	UFUNCTION()
 	void PlayerStateSetup();
 	UFUNCTION()
@@ -221,6 +224,7 @@ public:
 	void OnGameStart();
 	UFUNCTION()
 	void ColorBlink(float DeltaSeconds);
+
 protected:
 	float DelayToBlink = 1;
 	float TotalBlinkTime = 4;
@@ -232,4 +236,13 @@ public:
 	ATaskPlayerState* TaskPlayerState;
 	UPROPERTY(BlueprintAssignable, Category="State Delegate")
 	FOnStateInitializeDelegate OnStateInitializeDelegate;
+
+	inline ATaskPlayerState* GetTaskPlayerState()
+	{
+		if(TaskPlayerState)
+		{
+			return TaskPlayerState;
+		}
+		return TaskPlayerState = Cast<ATaskPlayerState> (GetPlayerState());
+	}
 };

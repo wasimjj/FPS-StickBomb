@@ -3,13 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-
 #include "TaskCharacter.h"
 #include "GameFramework/HUD.h"
 #include "TaskHUD.generated.h"
 
 class UTexture2D;
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnItemPicked);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnItemPicked , class APickable* , Pickable);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInitializeDelegate);
 UCLASS()
 class ATaskHUD : public AHUD

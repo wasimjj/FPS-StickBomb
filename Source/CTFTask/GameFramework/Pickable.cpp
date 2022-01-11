@@ -3,6 +3,7 @@
 
 #include "Pickable.h"
 
+#include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -17,13 +18,15 @@ APickable::APickable()
 void APickable::BeginPlay()
 {
 	Super::BeginPlay();
-	if (const APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0))
+	if (const ACharacter* Character =  UGameplayStatics::GetPlayerCharacter(GetWorld(), 0))
 	{
-		if (PlayerController->GetLocalRole() == ROLE_Authority)
+		//if (Character->IsLocallyControlled())
 		{
 			PickableMesh->OnComponentBeginOverlap.AddDynamic(this, &APickable::OnComponentBeginOverlap);
+			PickableMesh->OnComponentEndOverlap.AddDynamic(this, &APickable::OnComponentEndOverlap);
 		}
 	}
+	
 }
 
 void APickable::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -33,12 +36,28 @@ void APickable::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent
 	{
 		if (ACTFTaskCharacter* CTFTaskCharacter = Cast<ACTFTaskCharacter>(OtherActor))
 		{
-//			if (CTFTaskCharacter->TaskPlayerState->CurrentHealth > 0)
+			if (CTFTaskCharacter->IsLocallyControlled())
 			{
-				GLog->Log("printing.......");
-				SetActorHiddenInGame(true);
-				OnItemPicked.Broadcast();
+				OnItemPickable.Broadcast(this);
 			}
+			
 		}
 	}
 }
+
+void APickable::OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (OtherActor != nullptr)
+	{
+		if (ACTFTaskCharacter* CTFTaskCharacter = Cast<ACTFTaskCharacter>(OtherActor))
+		{
+			if (CTFTaskCharacter->IsLocallyControlled())
+			{
+				OnItemNotPickable.Broadcast(this);
+			}
+			
+		}
+	}
+}
+

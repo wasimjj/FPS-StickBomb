@@ -3,6 +3,7 @@
 
 #include "TaskGameStateBase.h"
 
+#include "EngineUtils.h"
 #include "TaskGameModeGameplay.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Kismet/GameplayStatics.h"
@@ -33,6 +34,13 @@ void ATaskGameStateBase::OnGameStart()
 	FTimerHandle TimerHandle;
 	TimerDel.BindUFunction(this, FName("UpdateGameTimer"), 0, 0.0);
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, 1, true);
+	for (TActorIterator<APickable> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	{
+		if(ActorItr)
+		{
+			GLog->Log("Pickable Found::::");
+		}
+	}
 
 }
 void ATaskGameStateBase::UpdateGameTimer()
