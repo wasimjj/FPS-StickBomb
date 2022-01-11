@@ -187,7 +187,8 @@ protected:
 	void CorrectRotationMulticast(FRotator Rotator);
 	UFUNCTION(BlueprintCallable, Category="Rotation")
 	void CorrectRotationMulticast_Implementation(FRotator Rotator);
-
+	UFUNCTION(Server,Reliable, BlueprintCallable)
+	void DestroyPickUp(class APickable* Pickup);
 
 public:
 	UFUNCTION()

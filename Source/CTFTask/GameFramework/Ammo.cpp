@@ -14,7 +14,7 @@ void AAmmo::BeginPlay()
 	Super::BeginPlay();
 	if (const ACTFTaskCharacter* PlayerController = Cast<ACTFTaskCharacter>( UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)))
 	{
-		//if (PlayerController->IsLocallyControlled())
+		if (PlayerController->IsLocallyControlled())
 		{
 			PickableMesh->OnComponentBeginOverlap.AddDynamic(this, &AAmmo::OnComponentBeginOverlap);
 			PickableMesh->OnComponentEndOverlap.AddDynamic(this, &AAmmo::OnComponentEndOverlap);
@@ -41,10 +41,6 @@ void AAmmo::OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 	
 }
 
-void AAmmo::DestroyOnServer_Implementation()
-{
-	Destroy();
-}
 
 
 

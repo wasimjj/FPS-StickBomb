@@ -20,11 +20,10 @@ void APickable::BeginPlay()
 	Super::BeginPlay();
 	if (const ACharacter* Character =  UGameplayStatics::GetPlayerCharacter(GetWorld(), 0))
 	{
-		//if (Character->IsLocallyControlled())
-		{
+		
 			PickableMesh->OnComponentBeginOverlap.AddDynamic(this, &APickable::OnComponentBeginOverlap);
 			PickableMesh->OnComponentEndOverlap.AddDynamic(this, &APickable::OnComponentEndOverlap);
-		}
+		
 	}
 	
 }
@@ -36,7 +35,7 @@ void APickable::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent
 	{
 		if (ACTFTaskCharacter* CTFTaskCharacter = Cast<ACTFTaskCharacter>(OtherActor))
 		{
-			if (CTFTaskCharacter->IsLocallyControlled())
+			if (CTFTaskCharacter->HasAuthority() ||CTFTaskCharacter->IsLocallyControlled())
 			{
 				OnItemPickable.Broadcast(this);
 			}
@@ -52,7 +51,7 @@ void APickable::OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, 
 	{
 		if (ACTFTaskCharacter* CTFTaskCharacter = Cast<ACTFTaskCharacter>(OtherActor))
 		{
-			if (CTFTaskCharacter->IsLocallyControlled())
+			if (CTFTaskCharacter->HasAuthority() || CTFTaskCharacter->IsLocallyControlled())
 			{
 				OnItemNotPickable.Broadcast(this);
 			}

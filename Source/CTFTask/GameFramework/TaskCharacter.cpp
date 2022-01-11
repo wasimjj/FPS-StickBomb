@@ -501,6 +501,11 @@ void ACTFTaskCharacter::CorrectRotationMulticast_Implementation(FRotator Rotator
 	}
 }
 
+void ACTFTaskCharacter::DestroyPickUp_Implementation(APickable* Pickup)
+{
+	Pickup->Destroy();
+}
+
 void ACTFTaskCharacter::PlayDeathAnimation()
 {
 	AnimInstanceEnemy->Montage_Play(DeathMontage, 1.f);
