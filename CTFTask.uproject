@@ -1,0 +1,21 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "4.27",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "CTFTask",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine",
+				"UMG"
+			]
+		}
+	],
+	"TargetPlatforms": [
+		"MacNoEditor",
+		"WindowsNoEditor"
+	]
+}
