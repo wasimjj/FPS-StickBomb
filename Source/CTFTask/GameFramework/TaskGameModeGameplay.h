@@ -31,8 +31,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category="Team Base")
 	TSubclassOf<APickable> BombPreset;
 
-	UPROPERTY()
-	FOnFlagCapturedDelegate OnBombCapturedDelegate;
+	//UPROPERTY()
+	//FOnFlagCapturedDelegate OnBombCapturedDelegate;
 	UPROPERTY(BlueprintAssignable , Category="Game Start")
 	FNotifyDelegate OnGameStartDelegate;
 

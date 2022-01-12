@@ -188,7 +188,7 @@ protected:
 	UFUNCTION(BlueprintCallable, Category="Rotation")
 	void CorrectRotationMulticast_Implementation(FRotator Rotator);
 	UFUNCTION(Server,Reliable, BlueprintCallable)
-	void DestroyPickUp(class APickable* Pickup);
+	void DestroyPickUp();
 
 public:
 	UFUNCTION()
@@ -223,21 +223,28 @@ public:
 	void ReSpawnMe();
 	UFUNCTION()
 	void OnGameStart();
-	UFUNCTION()
+	UFUNCTION( )
 	void ColorBlink(float DeltaSeconds);
 
 protected:
+
+	UPROPERTY()
 	float DelayToBlink = 1;
+	UPROPERTY()
 	float TotalBlinkTime = 4;
+	UPROPERTY()
 	float BlinkColor = 0.0f;
 	UPROPERTY()
 	UTaskGameInstance* TaskGameInstance;
+	
 public:
+	UPROPERTY()
+	class APickable* CurrentPickable;
 	UPROPERTY(BlueprintReadOnly, Category="PlayerState")
 	ATaskPlayerState* TaskPlayerState;
 	UPROPERTY(BlueprintAssignable, Category="State Delegate")
 	FOnStateInitializeDelegate OnStateInitializeDelegate;
-
+	UFUNCTION(BlueprintCallable)
 	inline ATaskPlayerState* GetTaskPlayerState()
 	{
 		if(TaskPlayerState)

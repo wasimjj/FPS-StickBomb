@@ -14,10 +14,5 @@ class CTFTASK_API ABomb : public APickable
 public:	
 	// Sets default values for this actor's properties
 	ABomb();
-
-	virtual void BeginPlay() override;
-	virtual void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-							 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
-							 const FHitResult& SweepResult) override;
-
+	
 };

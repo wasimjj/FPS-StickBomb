@@ -124,7 +124,7 @@ ACTFTaskCharacter::ACTFTaskCharacter()
 
 void ACTFTaskCharacter::ColorBlink(float DeltaSeconds)
 {
-	if(TaskPlayerState->bIsBombCaptured && TotalBlinkTime > 0)
+	if(TaskPlayerState->bIsBombCaptured)
 	{
 		if(TotalBlinkTime <= 0)
 		{
@@ -218,6 +218,7 @@ void ACTFTaskCharacter::UpdateAmmo_Implementation(const int Ammo)
 	if(GetTaskPlayerState())
 	{
 		GetTaskPlayerState()->AmmoCount = Ammo;
+		
 	}
 }
 
@@ -356,7 +357,7 @@ void ACTFTaskCharacter::OnFire()
 		return;
 	}
 	if (ProjectileClass != nullptr)
-	{\
+	{
 		UWorld* const World = GetWorld();
 		if (World != nullptr)
 		{
@@ -501,9 +502,14 @@ void ACTFTaskCharacter::CorrectRotationMulticast_Implementation(FRotator Rotator
 	}
 }
 
-void ACTFTaskCharacter::DestroyPickUp_Implementation(APickable* Pickup)
+void ACTFTaskCharacter::DestroyPickUp_Implementation()
 {
-	Pickup->Destroy();
+	if(CurrentPickable)
+	{
+		CurrentPickable->Destroy();
+		if(TaskPlayerState)
+		TaskPlayerState->AmmoCount++;
+	}
 }
 
 void ACTFTaskCharacter::PlayDeathAnimation()

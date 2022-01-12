@@ -19,7 +19,7 @@ public:
 	FOnItemPicked OnItemPickable;
 	UPROPERTY(BlueprintAssignable)
 	FOnItemPicked OnItemNotPickable;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Flag")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Pickable")
 	UStaticMeshComponent* PickableMesh;
 	UFUNCTION(BlueprintCallable, Category="Overlap")
 	virtual void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,

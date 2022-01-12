@@ -38,6 +38,7 @@ void APickable::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent
 			if (CTFTaskCharacter->HasAuthority() ||CTFTaskCharacter->IsLocallyControlled())
 			{
 				OnItemPickable.Broadcast(this);
+				CTFTaskCharacter->CurrentPickable = this;
 			}
 			
 		}
@@ -54,6 +55,7 @@ void APickable::OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, 
 			if (CTFTaskCharacter->HasAuthority() || CTFTaskCharacter->IsLocallyControlled())
 			{
 				OnItemNotPickable.Broadcast(this);
+				CTFTaskCharacter->CurrentPickable = nullptr;
 			}
 			
 		}
